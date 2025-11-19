@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Reader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Speed Reader</h1>
+        </header>
+
+        <main>
+            <div id="display-area" class="display-area hidden">
+                <div class="focus-indicator top"></div>
+                <div id="word-display" class="word-display">Ready</div>
+                <div class="focus-indicator bottom"></div>
+            </div>
+
+            <div id="input-area" class="input-area">
+                <textarea id="text-input" placeholder="Paste your text here to begin speed reading..."></textarea>
+            </div>
+
+            <div class="controls-container">
+                <div class="speed-control">
+                    <label for="wpm-slider">Speed: <span id="wpm-value">300</span> WPM</label>
+                    <input type="range" id="wpm-slider" min="100" max="1000" value="300" step="10">
+                </div>
+
+                <div class="action-buttons">
+                    <button id="start-btn" class="btn primary">Start Reading</button>
+                    <button id="pause-btn" class="btn secondary hidden">Pause</button>
+                    <button id="reset-btn" class="btn tertiary">Reset</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
