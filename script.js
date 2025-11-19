@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetBtn = document.getElementById('reset-btn');
     const wpmSlider = document.getElementById('wpm-slider');
     const wpmValue = document.getElementById('wpm-value');
+    const progressBar = document.getElementById('progress-bar');
+    const chunkSelect = document.getElementById('chunk-select');
 
     // State
     let words = [];
@@ -16,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
     let intervalId = null;
     let wpm = 300;
+    let wordsPerChunk = 1;
 
     // Initialize
     wpmSlider.value = wpm;
@@ -31,13 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    chunkSelect.addEventListener('change', (e) => {
+        wordsPerChunk = parseInt(e.target.value);
+        if (isPlaying) {
+            stopReading();
+            startReading();
+        }
+    });
+
     startBtn.addEventListener('click', () => {
         if (words.length === 0) {
             const text = textInput.value.trim();
             if (!text) return;
             processText(text);
         }
-        
+
         toggleView(true);
         startReading();
     });
@@ -57,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Simple split by whitespace, filtering empty strings
         words = text.split(/\s+/).filter(word => word.length > 0);
         currentIndex = 0;
+        updateProgress();
     }
 
     function toggleView(showReader) {
@@ -88,7 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         isPlaying = true;
         toggleControls(true);
 
-        const interval = 60000 / wpm;
+        // Calculate interval based on WPM and words per chunk
+        // WPM is words per minute.
+        // If we show N words at a time, the delay should be N times longer to maintain the same WPM.
+        const interval = (60000 / wpm) * wordsPerChunk;
 
         intervalId = setInterval(() => {
             if (currentIndex >= words.length) {
@@ -96,11 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleControls(false);
                 startBtn.textContent = 'Start Reading'; // Reset to start when finished
                 currentIndex = 0; // Reset index
+                updateProgress();
                 return;
             }
 
-            displayWord(words[currentIndex]);
-            currentIndex++;
+            const chunk = words.slice(currentIndex, currentIndex + wordsPerChunk).join(' ');
+            displayWord(chunk);
+            currentIndex += wordsPerChunk;
+            updateProgress();
         }, interval);
     }
 
@@ -120,13 +138,22 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleControls(false);
         startBtn.textContent = 'Start Reading';
         wordDisplay.textContent = 'Ready';
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const progress = words.length > 0 ? Math.min((currentIndex / words.length) * 100, 100) : 0;
+        progressBar.style.width = `${progress}%`;
     }
 
     function displayWord(word) {
+        // If displaying multiple words, just show them centered without highlighting
+        if (wordsPerChunk > 1) {
+            wordDisplay.textContent = word;
+            return;
+        }
+
         // Find the "optimal recognition point" (ORP) - roughly center or slightly left of center
-        // For simplicity in this version, we'll just display the word.
-        // To add the "bold syllable" effect requested (or similar focus point):
-        
         const centerIndex = Math.floor(word.length / 2);
         const firstPart = word.substring(0, centerIndex);
         const pivot = word[centerIndex];
